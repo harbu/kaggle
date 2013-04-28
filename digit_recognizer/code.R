@@ -12,10 +12,12 @@ load.test.data <- function() {
     td <<- read.csv("test.csv")
 }
 
+# Calculate the euclidean distance between two vectors.
 euclidean.distance <- function(v1, v2) {
     sum((v1 - v2) ^ 2)
 }
 
+# Visualize a given handwritten digit.
 visualize.row <- function(row) {
 
     if (length(row) == 785) {
@@ -29,6 +31,8 @@ visualize.row <- function(row) {
     plot(pixmapGrey(row, 28, 28), main=label)
 }
 
+# Given a data frame (e.g. training data), calculate the mean average image for
+# each class label (0-9).
 mean.centroids <- function(df) {
     centroids <- t(sapply(levels(df$label), function(level) {
         colMeans(df[df$label == level, -1])
@@ -39,18 +43,21 @@ mean.centroids <- function(df) {
 
 centroids <- mean.centroids(tr)
 
-my.predict <- function(centroids, rows) {
+# Given a matrix of centroids and a data frame, classify each row of the data
+# frame to one of the ten centroids (classes 0-9).
+my.predict <- function(centroids, df) {
     centroids <- centroids[,-1]
 
-    if (ncol(rows) == 785) {
-        rows <- rows[,-1]
+    if (ncol(df) == 785) {
+        df <- df[,-1]
     }
 
-    apply(rows, 1, function(row) {
+    apply(df, 1, function(row) {
         which.min(apply(centroids, 1, euclidean.distance, row)) - 1
     })
 }
 
+# Write predictions to disk.
 write.predictions <- function(predictions) {
     write.table(predictions, file="predictions.txt", quote=F, row.names=F,
                 col.names=F)
